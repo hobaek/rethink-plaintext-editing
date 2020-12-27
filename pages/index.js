@@ -108,14 +108,25 @@ function PlaintextFilesChallenge() {
   const [activeFile, setActiveFile] = useState(null);
 
   useEffect(() => {
-    const files = listFiles();
-    setFiles(files);
+    if (files.length === 0 || files === null) {
+      const files = listFiles();
+      setFiles(files);
+    }
   }, []);
 
   const write = file => {
     console.log('Writing soon... ', file.name);
 
     // TODO: Write the file to the `files` array
+    const fileIndex = files.findIndex(f => f.name === file.name);
+    if (fileIndex !== -1) {
+      const newFiles = files.slice();
+      newFiles[fileIndex] = file;
+      setFiles(newFiles);
+    } else {
+      setFiles([...files, file]);
+    }
+    localStorage.setItem('newFile', JSON.stringify(files));
   };
 
   const Editor = activeFile ? REGISTERED_EDITORS[activeFile.type] : null;
