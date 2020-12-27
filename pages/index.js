@@ -31,14 +31,14 @@ function FilesTable({ files, activeFile, setActiveFile }) {
     return data.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
   });
 
-  const onChange = q => setQuery(q);
+  const handleChange = q => setQuery(q);
 
   return (
     <div className={css.files}>
       <input
         type="text"
         placeholder="Search specific file by name"
-        onchange={e => onChange(e.target.value)}
+        onChange={e => handleChange(e.target.value)}
       />
       <table>
         <thead>
@@ -48,7 +48,7 @@ function FilesTable({ files, activeFile, setActiveFile }) {
           </tr>
         </thead>
         <tbody>
-          {files.map(file => (
+          {sortedFiles.map(file => (
             <tr
               key={file.name}
               className={classNames(
@@ -121,7 +121,7 @@ function PlaintextFilesChallenge() {
   const [activeFile, setActiveFile] = useState(null);
 
   useEffect(() => {
-    if (files.length === 0 || files === null) {
+    if (files.length === 0) {
       const files = listFiles();
       setFiles(files);
     }
@@ -156,8 +156,19 @@ function PlaintextFilesChallenge() {
           <div className={css.description}>
             Let{"'"}s explore files in JavaScript. What could be more fun than
             rendering and editing plaintext? Not much, as it turns out.
+            <h4>Edit and Click the save button</h4>
           </div>
         </header>
+
+        <button
+          type="button"
+          onClick={e => {
+            e.preventDefault();
+            window.location.href = 'http://localhost:3000/shorten';
+          }}
+        >
+          Click here for Shorten Url Page
+        </button>
 
         <FilesTable
           files={files}

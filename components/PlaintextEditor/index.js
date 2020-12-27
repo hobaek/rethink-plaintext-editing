@@ -30,7 +30,7 @@ function PlaintextEditor({ file, write }) {
       <ControlledEditor
         value={newFile}
         width="100%"
-        height="90vh"
+        height="50vh"
         language="plaintext"
         onChange={handleChange}
       />
