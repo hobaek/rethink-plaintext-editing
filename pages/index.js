@@ -25,8 +25,21 @@ const TYPE_TO_ICON = {
 };
 
 function FilesTable({ files, activeFile, setActiveFile }) {
+  const [query, setQuery] = useState('');
+
+  const sortedFiles = files.filter(data => {
+    return data.name.toLowerCase().indexOf(query.toLowerCase()) !== -1;
+  });
+
+  const onChange = q => setQuery(q);
+
   return (
     <div className={css.files}>
+      <input
+        type="text"
+        placeholder="Search specific file by name"
+        onchange={e => onChange(e.target.value)}
+      />
       <table>
         <thead>
           <tr>
