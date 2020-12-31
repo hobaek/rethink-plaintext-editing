@@ -121,25 +121,56 @@ function PlaintextFilesChallenge() {
   const [activeFile, setActiveFile] = useState(null);
 
   useEffect(() => {
-    if (files.length === 0) {
+    (async () => {
       const files = listFiles();
-      setFiles(files);
-    }
+      const storedFiles = JSON.parse(localStorage.getItem('files'));
+
+      if (storedFiles === null || storedFiles.length === 0) {
+        setFiles(files);
+      } else {
+        const newFiles = files.map(file => {
+          const fileIndex = storedFiles.findIndex(f => f.name === file.name);
+
+          if (fileIndex === -1) return file;
+
+          const changedFile = storedFiles[fileIndex];
+          const newFile = new File([changedFile.text], file.name, {
+            type: changedFile.type,
+            lastModified: changedFile.lastModified
+          });
+
+          return newFile;
+        });
+
+        setFiles(newFiles);
+      }
+    })();
   }, []);
 
-  const write = file => {
+  const write = async file => {
     console.log('Writing soon... ', file.name);
-
+    const newFiles = files.slice();
     // TODO: Write the file to the `files` array
     const fileIndex = files.findIndex(f => f.name === file.name);
     if (fileIndex !== -1) {
-      const newFiles = files.slice();
       newFiles[fileIndex] = file;
       setFiles(newFiles);
     } else {
       setFiles([...files, file]);
     }
-    localStorage.setItem('newFile', JSON.stringify(files));
+
+    const newFile = {
+      name: file.name,
+      text: await file.text(),
+      type: file.type,
+      lastModified: file.lastModified
+    };
+    let storedFiles = JSON.parse(localStorage.getItem('files'));
+    storedFiles
+      ? (storedFiles[fileIndex] = newFile)
+      : (storedFiles = [newFile]);
+
+    localStorage.setItem('files', JSON.stringify(storedFiles));
   };
 
   const Editor = activeFile ? REGISTERED_EDITORS[activeFile.type] : null;
@@ -156,7 +187,8 @@ function PlaintextFilesChallenge() {
           <div className={css.description}>
             Let{"'"}s explore files in JavaScript. What could be more fun than
             rendering and editing plaintext? Not much, as it turns out.
-            <h4>Edit and Click the save button</h4>
+            <h5>Edit and Click the save button in editor</h5>
+            <h5>When you click the button your storage will be clear</h5>
           </div>
         </header>
 
@@ -164,10 +196,11 @@ function PlaintextFilesChallenge() {
           type="button"
           onClick={e => {
             e.preventDefault();
-            window.location.href = 'http://localhost:3000/shorten';
+            localStorage.clear();
+            window.location.href = 'http://localhost:3000';
           }}
         >
-          Click here for Shorten Url Page
+          Click for clear LocalStorage Files
         </button>
 
         <FilesTable
